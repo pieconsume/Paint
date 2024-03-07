@@ -4,47 +4,57 @@
   <title>Paint</title>
   <style>
    * { position: absolute; margin: 0px; border: none; background: none; padding: 0px; outline: none; text-align: center; }
-   div { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-   div, canvas, input { border-style: solid; border-width: 2px; }
-   #settings > div { width: 50px; height: 20px; }
-   .textbox { border: none; width: 32px; height: 20px; background: #404040; text-align: right; text-wrap: nowrap; -moz-appearance: textfield; }
    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
-   .container { overflow-y: scroll; scrollbar-width: none; }
-   .list { border: none; display: grid; width: 100%; min-height: 100%; }
-   #colorlist > div { position: static; width: 12px; height: 12px; border-color: #303030; }
+   div                  { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+   div, canvas, input   { border-style: solid; border-width: 2px; }
+   body > *             { background: #202020; border-color: #101010; }
+   #colorlist > div     { position: static; border-color: #808080; width: 12px; height: 12px; }
+   #colorpicker > input { height: 16px; width: 27px; }
+   .container           { overflow-y: scroll; scrollbar-width: none; }
+   .list                { display: grid; border: none; width: 100%; min-height: 100%; }
+   .coloradddel         { background: #404040; border-color: #606060; bottom: 40px; text-align: center; font-size: 14px; }
    </style>
   </head>
- <body style="background: #000000;">
-  <div    id="settings" style="top: 10px; left: 10px; width: 54px; height: 168px; background: #303030; border-color: #303030; display: grid;">
-   <div id="restart" style="top: 0px;   background: #802020; border-color: #401010; text-align: center;" onclick="reset()">Reset</div>
-   <div id="wdiv"    style="top: 24px;  background: #404040; border-color: #282828; text-align: left;">W:<input id="wbox" class="textbox" type="number" value="512"/></div>
-   <div id="hdiv"    style="top: 48px;  background: #404040; border-color: #282828; text-align: left;">H:<input id="hbox" class="textbox" type="number" value="512"/></div>
-   <div id="rdiv"    style="top: 72px;  background: #404040; border-color: #282828; text-align: left;">R:<input id="rbox" class="textbox" type="number" value="0"/></div>
-   <div id="gdiv"    style="top: 96px;  background: #404040; border-color: #282828; text-align: left;">G:<input id="gbox" class="textbox" type="number" value="0"/></div>
-   <div id="bdiv"    style="top: 120px; background: #404040; border-color: #282828; text-align: left;">B:<input id="bbox" class="textbox" type="number" value="0"/></div>
-   <div id="adiv"    style="top: 144px; background: #404040; border-color: #282828; text-align: left;">A:<input id="abox" class="textbox" type="number" value="0"/></div>
+ <body style="background: #000000;" oncontextmenu="return false;">
+  <div    id="toolbar"  style="top: 10px; left: 10px;  width: 128px; height: 582px;">
+   <div id="colorpicker" style="top: 0xp;   width: 124px; height: 60px; background: #303030; border-color: #505050;">
+    <div   id="coloradd" style="width: 58px; height: 16px; left: 0px; " class="coloradddel">Add color</div>
+    <div   id="colordel" style="width: 58px; height: 16px; left: 62px;" class="coloradddel">Del color</div>
+    <input id="red1"   type="number" value="0"   style="left: 0px;  bottom: 20px; background: #402020; border-color: #804040;" onchange="selectcolor1()">
+    <input id="green1" type="number" value="0"   style="left: 31px; bottom: 20px; background: #204020; border-color: #408040;" onchange="selectcolor1()">
+    <input id="blue1"  type="number" value="0"   style="left: 62px; bottom: 20px; background: #202040; border-color: #404080;" onchange="selectcolor1()">
+    <input id="alpha1" type="number" value="255" style="left: 93px; bottom: 20px; background: #202020; border-color: #404040;" onchange="selectcolor1()">
+    <input id="red2"   type="number" value="0"   style="left: 0px;  bottom: 00px; background: #201010; border-color: #604040;" onchange="selectcolor2()">
+    <input id="green2" type="number" value="0"   style="left: 31px; bottom: 00px; background: #102010; border-color: #406040;" onchange="selectcolor2()">
+    <input id="blue2"  type="number" value="0"   style="left: 62px; bottom: 00px; background: #101020; border-color: #404060;" onchange="selectcolor2()">
+    <input id="alpha2" type="number" value="255" style="left: 93px; bottom: 00px; background: #101010; border-color: #303030;" onchange="selectcolor2()">
+    </div>
+   <div id="toolcon"     style="bottom: 0px; width: 124px; height: 100px; background: #303030; border-color: #404040;" class="container">
+    <div id="toollist" style="" class="list"></div>
+    </div>
    </div>
-  <div    id="colorcnt" style="top: 10px; left: 70px; width: 512px; height: 64px;  background: #202020; border-color: #101010;" class="container">
+  <div    id="colorcon" style="top: 10px; left: 144px; width: 512px; height: 64px;" class="container">
    <div id="colorlist" style="grid-template-columns: repeat(32, 16px); grid-auto-rows: 16px;" class="list"></div></div>
-  <canvas id="paint"    style="top: 80px; left: 70px; border-color: #101010;"></canvas>
+  <canvas id="paint"    style="top: 80px; left: 144px;"></canvas>
   </body>
  <script>
   let draw   = paint.getContext("2d");
   let colors = colorlist.getElementsByTagName("div");
   let width = 512, height = 512;
-  let tool = "brush", selectedcolor, color1;
+  let tool = "brush", color1, color2, drawcolor;
   let clicking, wasclicking = false, mousex, mousey, oldx, oldy;
   let actions = [];
   let actionidx = -1;
   let actionarridx = 0;
-  addcolor(0, 0, 0, 256);
-  addcolor(128, 0, 0, 256);
-  selectedcolor = colors[0];
-  selectcolor(colors[0]);
+  addcolor(0, 0, 0, 255);
+  selectcolor1(colors[0]);
+  selectcolor2(colors[0]);
   addEventListener("keydown", onkeydown);
   addEventListener("mousemove", setmousepos);
-  addEventListener("mousedown", () => { clicking = true; } );
-  addEventListener("mouseup",   () => { clicking = false; } );
+  addEventListener("mousedown", (e) => { clicking = true; if (e.button == 0) { drawcolor = getcurcolor1(); } else if (e.button == 2) { drawcolor = getcurcolor2(); } } );
+  addEventListener("mouseup",   (e) => { clicking = false; } );
+  coloradd.addEventListener("mousedown", (e) => { if (e.button == 0) { addcolor(red1.value, blue1.value, green1.value, alpha1.value); } else if (e.button == 2) { addcolor(red2.value, blue2.value, green2.value, alpha2.value); } });
+  colordel.addEventListener("mousedown", (e) => { if (e.button == 0) { delcolor(color1); } else if (e.button == 2) { delcolor(color2); } });
   reset();
   function reset(){
    paint.width = width; paint.style.width = width
@@ -53,20 +63,21 @@
    draw.fillStyle = "#101030";
    draw.fillRect(0, 0, width, height);}
   function setmousepos(e){
-   mousex = event.clientX - 70;
+   mousex = event.clientX - 144;
    mousey = event.clientY - 80;
    if (wasclicking && !clicking) { wasclicking = false; console.log(actions); }
    if (clicking && mousex > 0 && mousey > 0 && mousex < width && mousey < height){
     if (tool == "brush"){
-     if (!wasclicking && clicking) { wasclicking = true; actionidx++; actions[actionidx] = { tool: "brush", color: color1, points: [], }; actionarridx = 0; }
+     if (!wasclicking && clicking) { wasclicking = true; actionidx++; actions[actionidx] = { tool: "brush", color: drawcolor, points: [], }; actionarridx = 0; }
      actions[actionidx].points[actionarridx] = { x: mousex, y: mousey };
      actionarridx++;
+     draw.strokeStyle = drawcolor;
      draw.beginPath();
      draw.moveTo(oldx, oldy);
      draw.lineTo(mousex, mousey);
      draw.stroke();} 
     else if (tool == "") {} }
-   oldx = event.clientX - 70;
+   oldx = event.clientX - 144;
    oldy = event.clientY - 80;}
   function undo(){
    reset();
@@ -85,20 +96,31 @@
   function onkeydown(e){
    if (clicking) { return; }
    if (!e.ctrlKey) { return; }
-   if (e.code == "KeyZ") { undo(); }
-   }
-  function addcolor(r, g, b, a){
+   if (e.code == "KeyZ") { undo(); e.preventDefault(); } }
+  function addcolor(r, g, b, a, color1){
    let colordiv = document.createElement("div");
+   console.log(rgba(r, g, b, a));
    colordiv.style.background = rgba(r, g, b, a);
-   colordiv.addEventListener("mousedown", () => { selectcolor(colordiv); });
+   colordiv.dataset.r = r; colordiv.dataset.g = g; colordiv.dataset.b = b; colordiv.dataset.a = a;
+   colordiv.addEventListener("mousedown", (e) => { if (e.button == 0) { selectcolor1(colordiv); } else if (e.button == 2) { selectcolor2(colordiv); } });
    colorlist.append(colordiv);}
-  function selectcolor(colordiv){
-   selectedcolor.style.borderColor = "";
-   selectedcolor = colordiv;
-   selectedcolor.style.borderColor = "#808080";
-   color1 = selectedcolor.style.background;
-   draw.strokeStyle = color1;
-   }
-  function rgba(r, g, b, a){ return `rgba(${r}, ${g}, ${b}, ${a})`; }
+  function delcolor(colordiv) { if (colordiv != null) colordiv.remove(); }
+  function selectcolor1(colordiv){
+   if (colordiv == color1) { return; }
+   if (colordiv != null)   { colordiv.style.borderColor = "#F0F0F0"; setcurcolor1(colordiv.dataset.r, colordiv.dataset.g, colordiv.dataset.b, colordiv.dataset.a);
+   if (colordiv == color2) { colordiv.style.borderRightColor = "#101010"; colordiv.style.borderBottomColor = "#101010"; } }
+   if (color1   != null)   { color1.style.borderColor = ""; if (color1 == color2) { color1.style.borderColor = "#101010"; } }
+   color1 = colordiv; }
+  function selectcolor2(colordiv){
+   if (colordiv == color2) { return; }
+   if (colordiv != null)   { colordiv.style.borderColor = "#101010"; setcurcolor2(colordiv.dataset.r, colordiv.dataset.g, colordiv.dataset.b, colordiv.dataset.a);
+   if (colordiv == color1) { colordiv.style.borderLeftColor = "#F0F0F0";  colordiv.style.borderTopColor = "#F0F0F0"; } }
+   if (color2 != null)     { color2.style.borderColor = ""; if (color1 == color2) { color1.style.borderColor = "#F0F0F0"; } }
+   color2 = colordiv; }
+  function getcurcolor1()           { return rgba(red1.value, green1.value, blue1.value, alpha1.value); }
+  function getcurcolor2()           { return rgba(red2.value, green2.value, blue2.value, alpha2.value); }
+  function setcurcolor1(r, g, b, a) { red1.value = r, green1.value = g, blue1.value = b, alpha1.value = a; }
+  function setcurcolor2(r, g, b, a) { red2.value = r, green2.value = g, blue2.value = b, alpha2.value = a; }
+  function rgba(r, g, b, a){ return `rgba(${r}, ${g}, ${b}, ${a / 255})`; }
   </script>
  </html>
