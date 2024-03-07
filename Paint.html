@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <title>Paint</title>
+  <style>
+   * { position: absolute; margin: 0px; border: none; background: none; padding: 0px; outline: none; text-align: center; }
+   div { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+   div, canvas, input { border-style: solid; border-width: 2px; }
+   #settings > div { width: 50px; height: 20px; }
+   .textbox { border: none; width: 32px; height: 20px; background: #404040; text-align: right; text-wrap: nowrap; -moz-appearance: textfield; }
+   input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+   .container { overflow-y: scroll; scrollbar-width: none; }
+   .list { border: none; display: grid; width: 100%; min-height: 100%; }
+   #colorlist > div { position: static; width: 12px; height: 12px; border-color: #303030; }
+   </style>
+  </head>
+ <body style="background: #000000;">
+  <div    id="settings" style="top: 10px; left: 10px; width: 54px; height: 168px; background: #303030; border-color: #303030; display: grid;">
+   <div id="restart" style="top: 0px;   background: #802020; border-color: #401010; text-align: center;" onclick="reset()">Reset</div>
+   <div id="wdiv"    style="top: 24px;  background: #404040; border-color: #282828; text-align: left;">W:<input id="wbox" class="textbox" type="number" value="512"/></div>
+   <div id="hdiv"    style="top: 48px;  background: #404040; border-color: #282828; text-align: left;">H:<input id="hbox" class="textbox" type="number" value="512"/></div>
+   <div id="rdiv"    style="top: 72px;  background: #404040; border-color: #282828; text-align: left;">R:<input id="rbox" class="textbox" type="number" value="0"/></div>
+   <div id="gdiv"    style="top: 96px;  background: #404040; border-color: #282828; text-align: left;">G:<input id="gbox" class="textbox" type="number" value="0"/></div>
+   <div id="bdiv"    style="top: 120px; background: #404040; border-color: #282828; text-align: left;">B:<input id="bbox" class="textbox" type="number" value="0"/></div>
+   <div id="adiv"    style="top: 144px; background: #404040; border-color: #282828; text-align: left;">A:<input id="abox" class="textbox" type="number" value="0"/></div>
+   </div>
+  <div    id="colorcnt" style="top: 10px; left: 70px; width: 512px; height: 64px;  background: #202020; border-color: #101010;" class="container">
+   <div id="colorlist" style="grid-template-columns: repeat(32, 16px); grid-auto-rows: 16px;" class="list"></div></div>
+  <canvas id="paint"    style="top: 80px; left: 70px; border-color: #101010;"></canvas>
+  </body>
+ <script>
+  let draw   = paint.getContext("2d");
+  let colors = colorlist.getElementsByTagName("div");
+  let width = 512, height = 512;
+  let tool = "brush", selectedcolor, color1;
+  let clicking, wasclicking = false, mousex, mousey, oldx, oldy;
+  let actions = [];
+  let actionidx = -1;
+  let actionarridx = 0;
+  addcolor(0, 0, 0, 256);
+  addcolor(128, 0, 0, 256);
+  selectedcolor = colors[0];
+  selectcolor(colors[0]);
+  addEventListener("keydown", onkeydown);
+  addEventListener("mousemove", setmousepos);
+  addEventListener("mousedown", () => { clicking = true; } );
+  addEventListener("mouseup",   () => { clicking = false; } );
+  reset();
+  function reset(){
+   paint.width = width; paint.style.width = width
+   paint.height = height; paint.style.height = height
+   draw.reset();
+   draw.fillStyle = "#101030";
+   draw.fillRect(0, 0, width, height);}
+  function setmousepos(e){
+   mousex = event.clientX - 70;
+   mousey = event.clientY - 80;
+   if (wasclicking && !clicking) { wasclicking = false; console.log(actions); }
+   if (clicking && mousex > 0 && mousey > 0 && mousex < width && mousey < height){
+    if (tool == "brush"){
+     if (!wasclicking && clicking) { wasclicking = true; actionidx++; actions[actionidx] = { tool: "brush", color: color1, points: [], }; actionarridx = 0; }
+     actions[actionidx].points[actionarridx] = { x: mousex, y: mousey };
+     actionarridx++;
+     draw.beginPath();
+     draw.moveTo(oldx, oldy);
+     draw.lineTo(mousex, mousey);
+     draw.stroke();} 
+    else if (tool == "") {} }
+   oldx = event.clientX - 70;
+   oldy = event.clientY - 80;}
+  function undo(){
+   reset();
+   if (actionidx > -1) { actionidx--; };
+   redraw();}
+  function redraw(){
+   for (let i = 0; i < actionidx+1; i++) {
+    let action = actions[i];
+    if (action.tool == "brush"){
+     draw.beginPath();
+     draw.strokeStyle = action.color;
+     draw.moveTo(action.points[0].x, action.points[0].y);
+     for (let j = 0; j < action.points.length; j++) { draw.lineTo(action.points[j].x, action.points[j].y); }
+     draw.stroke(); }
+    } }
+  function onkeydown(e){
+   if (clicking) { return; }
+   if (!e.ctrlKey) { return; }
+   if (e.code == "KeyZ") { undo(); }
+   }
+  function addcolor(r, g, b, a){
+   let colordiv = document.createElement("div");
+   colordiv.style.background = rgba(r, g, b, a);
+   colordiv.addEventListener("mousedown", () => { selectcolor(colordiv); });
+   colorlist.append(colordiv);}
+  function selectcolor(colordiv){
+   selectedcolor.style.borderColor = "";
+   selectedcolor = colordiv;
+   selectedcolor.style.borderColor = "#808080";
+   color1 = selectedcolor.style.background;
+   draw.strokeStyle = color1;
+   }
+  function rgba(r, g, b, a){ return `rgba(${r}, ${g}, ${b}, ${a})`; }
+  </script>
+ </html>
