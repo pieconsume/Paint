@@ -54,7 +54,7 @@
   addEventListener("mousemove", setmousepos);
   addEventListener("mousedown", (e) => { clicking = true; if (e.button == 0) { drawcolor = getcurcolor1(); } else if (e.button == 2) { drawcolor = getcurcolor2(); } } );
   addEventListener("mouseup",   (e) => { clicking = false; } );
-  coloradd.addEventListener("mousedown", (e) => { if (e.button == 0) { addcolor(red1.value, blue1.value, green1.value, alpha1.value); } else if (e.button == 2) { addcolor(red2.value, blue2.value, green2.value, alpha2.value); } });
+  coloradd.addEventListener("mousedown", (e) => { if (e.button == 0) { addcolor(red1.value, green1.value, blue1.value, alpha1.value); } else if (e.button == 2) { addcolor(red2.value, green2.value, blue2.value, alpha2.value); } });
   colordel.addEventListener("mousedown", (e) => { if (e.button == 0) { delcolor(color1); } else if (e.button == 2) { delcolor(color2); } });
   reset();
   function reset(){
