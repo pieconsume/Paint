@@ -8,7 +8,7 @@
    input                { -moz-appearance:textfield; }
    div                  { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
    div, canvas, input   { border-style: solid; border-width: 2px; }
-   body > *             { background: #202020; border-color: #101010; }
+   body > *             { background: #202020; border-color: #303030; }
    #colorlist > div     { position: static; border-color: #808080; border-width: 4px; width: 24px; height: 24px; }
    #colorpicker > input { height: 16px; width: 27px; }
    .container           { overflow-y: scroll; scrollbar-width: none; }
@@ -30,6 +30,7 @@
     <input id="blue2"  type="number" value="0"   style="left: 62px; bottom: 00px; background: #101020; border-color: #404060;" onchange="selectcolor2()">
     <input id="alpha2" type="number" value="255" style="left: 93px; bottom: 00px; background: #101010; border-color: #303030;" onchange="selectcolor2()">
     </div>
+   <div id="optioncon"   style=""></div>
    <div id="toolcon"     style="bottom: 0px; width: 124px; height: 100px; background: #303030; border-color: #404040;" class="container">
     <div id="toollist" style="" class="list"></div>
     </div>
@@ -42,14 +43,14 @@
   let draw   = paint.getContext("2d");
   let colors = colorlist.getElementsByTagName("div");
   let width = 512, height = 512;
-  let tool = "brush", color1, color2, drawcolor;
+  let color1, color2;
+  let tool = "brush", drawcolor, drawwidth;
   let clicking, wasclicking = false, mousex, mousey, oldx, oldy;
-  let actions = [];
-  let actionidx = -1;
-  let actionarridx = 0;
+  let actions = [], actionidx = -1, actionarridx = 0;
   addcolor(0, 0, 0, 255);
+  addcolor(255, 255, 255, 255);
   selectcolor1(colors[0]);
-  selectcolor2(colors[0]);
+  selectcolor2(colors[1]);
   addEventListener("keydown", onkeydown);
   addEventListener("mousemove", setmousepos);
   addEventListener("mousedown", (e) => { clicking = true; if (e.button == 0) { drawcolor = getcurcolor1(); } else if (e.button == 2) { drawcolor = getcurcolor2(); } } );
@@ -69,7 +70,7 @@
    if (wasclicking && !clicking) { wasclicking = false; }
    if (clicking && mousex > 0 && mousey > 0 && mousex < width && mousey < height){
     if (tool == "brush"){
-     if (!wasclicking && clicking) { wasclicking = true; actionidx++; actions[actionidx] = { tool: "brush", color: drawcolor, points: [], }; actionarridx = 0; }
+     if (!wasclicking && clicking) { wasclicking = true; actionidx++; actions[actionidx] = { tool: "brush", color: drawcolor, points: [ { x: oldx, y: oldy } ], }; actionarridx = 1; }
      actions[actionidx].points[actionarridx] = { x: mousex, y: mousey };
      actionarridx++;
      draw.strokeStyle = drawcolor;
